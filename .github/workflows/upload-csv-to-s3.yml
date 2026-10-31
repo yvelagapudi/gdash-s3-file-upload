@@ -1,0 +1,42 @@
+name: Upload CSV To S3
+
+on:
+
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  upload-file:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+
+      with:
+        role-to-assume: arn:aws:iam::073019354357:role/GDASH-DEV-GitHub-S3Upload-Role
+        aws-region: us-east-1
+
+    - name: Upload CSV
+      run: |
+        aws s3 cp \
+        files/test_upload_0302026.csv \
+        s3://gdash-gsas-onprem-sourcedata/outbound_solas/
+
+    - name: Verify Upload
+      run: |
+        aws s3 ls \
+        s3://gdash-gsas-onprem-sourcedata/outbound_solas/
